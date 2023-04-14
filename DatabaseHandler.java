@@ -34,3 +34,38 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 		onCreate(db);
 	}
 }
+public void addUser(User user) {
+    SQLiteDatabase db = this.getWritableDatabase();
+
+    ContentValues values = new ContentValues();
+    values.put(KEY_NAME, user.getName());
+    values.put(KEY_PASSWORD, user.getPassword());
+    values.put(KEY_LOGIN_NAME, user.getLogin_name());
+
+    db.insert(TABLE_NAME, null, values);
+    db.close();
+}
+public UsergetStudent(int studentId) {
+    SQLiteDatabase db = this.getReadableDatabase();
+
+    Cursor cursor = db.query(TABLE_NAME, null, KEY_ID + " = ?", new String[] { String.valueOf(studentId) },null, null, null);
+    if(cursor != null)
+        cursor.moveToFirst();
+    Useruser= new Student(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
+    return student;
+}
+public List<User> getAllStudents() {
+    List<User>  userList = new ArrayList<>();
+    String query = "SELECT * FROM" + TABLE_NAME;
+
+    SQLiteDatabase db = this.getReadableDatabase();
+    Cursor cursor = db.rawQuery(query, null);
+    cursor.moveToFirst();
+
+    while(cursor.isAfterLast() == false) {
+        Useruser= new User(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
+        userList.add(user);
+        cursor.moveToNext();
+    }
+    return userList;
+}
