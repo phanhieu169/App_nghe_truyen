@@ -45,7 +45,7 @@ public void addUser(User user) {
     db.insert(TABLE_NAME, null, values);
     db.close();
 }
-public UsergetStudent(int studentId) {
+public UsergetUser(int userId) {
     SQLiteDatabase db = this.getReadableDatabase();
 
     Cursor cursor = db.query(TABLE_NAME, null, KEY_ID + " = ?", new String[] { String.valueOf(studentId) },null, null, null);
