@@ -1,80 +1,257 @@
-package com.example.appnghetruyen;
+package com.example.appdoctruyen;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.widget.EditText;
-import android.widget.GridView;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.Toast;
 
-import com.example.appnghetruyen.adapter.TruyenTranhAdapter;
-import com.example.appnghetruyen.object.truyen;
+import android.widget.ViewFlipper;
+
+import com.example.appdoctruyen.adapter.adapterchuyenmuc;
+import com.example.appdoctruyen.adapter.adapterthongtin;
+import com.example.appdoctruyen.adapter.adaptertruyen;
+import com.example.appdoctruyen.data.DatabaseDocTruyen;
+import com.example.appdoctruyen.model.TaiKhoan;
+import com.example.appdoctruyen.model.Truyen;
+import com.example.appdoctruyen.model.chuyenmuc;
+import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-GridView gdvDSTruyen;
-TruyenTranhAdapter adapter;
-ArrayList<truyen> truyenArrayList;
-EditText thanhtimkiem;
+
+    Toolbar toolbar;
+    ViewFlipper viewFlipper;
+
+    NavigationView navigationView;
+    ListView listView,listViewNew,listviewThongtin;
+    DrawerLayout drawerLayout;
+
+
+
+    ArrayList<chuyenmuc> chuyenmucArrayList;
+    ArrayList<TaiKhoan> taiKhoanArrayList;
+
+
+    ArrayList<Truyen> TruyenArrayList;
+    adaptertruyen adaptertruyen;
+
+    adapterthongtin adapterthongtin;
+
+    adapterchuyenmuc adapterchuyenmuc;
+
+    DatabaseDocTruyen databaseDocTruyen;
+    String email;
+    String tentaikhoan;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        init();
-        anhXa();
-        setUp();
-        setClick();
-    }
-    private void init(){
-        truyenArrayList = new ArrayList<>();
-        truyenArrayList.add(new truyen("Vua Đảo Hải Tặc - One Piece","Chapter 1080","https://truyencapnhat.com/cdn/truyencapnhat/20210516/doc-truyen-tranh-dao-hai-tac.jpg"));
-        truyenArrayList.add(new truyen("Lớ Ngớ Vớ Phải Tình Yêu","Chapter 66.2","https://truyencapnhat.com/cdn/truyencapnhat/20220910/doc-truyen-tranh-lo-ngo-vo-phai-tinh-yeu.jpg"));
-        truyenArrayList.add(new truyen("Ta Có Con Với Đại Boss","Chapter 50","https://truyencapnhat.com/cdn/truyencapnhat/20230122/doc-truyen-tranh-ta-co-con-voi-dai-boss.jpg"));
-        truyenArrayList.add(new truyen("Ổ C Thích Thả Thính","Chapter 7","https://truyencapnhat.com/cdn/truyencapnhat/20230217/doc-truyen-tranh-o-c-thich-tha-thinh.jpg"));
-        truyenArrayList.add(new truyen("Vua Đảo Hải Tặc - One Piece","Chapter 1080","https://truyencapnhat.com/cdn/truyencapnhat/20210516/doc-truyen-tranh-dao-hai-tac.jpg"));
-        truyenArrayList.add(new truyen("Lớ Ngớ Vớ Phải Tình Yêu","Chapter 66.2","https://truyencapnhat.com/cdn/truyencapnhat/20220910/doc-truyen-tranh-lo-ngo-vo-phai-tinh-yeu.jpg"));
-        truyenArrayList.add(new truyen("Ta Có Con Với Đại Boss","Chapter 50","https://truyencapnhat.com/cdn/truyencapnhat/20230122/doc-truyen-tranh-ta-co-con-voi-dai-boss.jpg"));
-        truyenArrayList.add(new truyen("Ổ C Thích Thả Thính","Chapter 7","https://truyencapnhat.com/cdn/truyencapnhat/20230217/doc-truyen-tranh-o-c-thich-tha-thinh.jpg"));
-        truyenArrayList.add(new truyen("Vua Đảo Hải Tặc - One Piece","Chapter 1080","https://truyencapnhat.com/cdn/truyencapnhat/20210516/doc-truyen-tranh-dao-hai-tac.jpg"));
-        truyenArrayList.add(new truyen("Lớ Ngớ Vớ Phải Tình Yêu","Chapter 66.2","https://truyencapnhat.com/cdn/truyencapnhat/20220910/doc-truyen-tranh-lo-ngo-vo-phai-tinh-yeu.jpg"));
-        truyenArrayList.add(new truyen("Ta Có Con Với Đại Boss","Chapter 50","https://truyencapnhat.com/cdn/truyencapnhat/20230122/doc-truyen-tranh-ta-co-con-voi-dai-boss.jpg"));
-        truyenArrayList.add(new truyen("Ổ C Thích Thả Thính","Chapter 7","https://truyencapnhat.com/cdn/truyencapnhat/20230217/doc-truyen-tranh-o-c-thich-tha-thinh.jpg"));
+
+        //AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+
+        databaseDocTruyen = new DatabaseDocTruyen(this);
 
 
+        Intent intentpq = getIntent();
+        int i = intentpq.getIntExtra("phanq",0);
+        int idd = intentpq.getIntExtra("idd",0);
+        email = intentpq.getStringExtra("email");
+        tentaikhoan = intentpq.getStringExtra("tentaikhoan");
 
-        adapter = new TruyenTranhAdapter(this, 0 ,truyenArrayList);
-    }
+
+        AnhXa();
+
+        ActionBar();
+        ActionViewFlipper();
 
 
-
-    private void anhXa(){
-        gdvDSTruyen = findViewById(R.id.gdvDSTruyen);
-        thanhtimkiem = findViewById(R.id.thanhtimkiem);
-    }
-    private void setUp(){
-        gdvDSTruyen.setAdapter(adapter);
-    }
-    private void setClick() {
-
-        thanhtimkiem.addTextChangedListener(new TextWatcher() {
+        //listview chuyên mục
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(position == 0){
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                String s = thanhtimkiem.getText().toString();
-                adapter.scrtTruyen(s);
+                        if(i == 2) {
+                            Intent intent = new Intent(MainActivity.this, ManAdmin.class);
+                            intent.putExtra("Id",idd);
+                            startActivity(intent);
+                    }
+                        else {
+                            Toast.makeText(MainActivity.this,"Bạn không có quyền ",Toast.LENGTH_SHORT).show();
+                            Log.e("Đăng bài : ","Bạn không có quyền ");
+                        }
+                    }
+                else if(position == 1){
+                    Intent intent = new Intent(MainActivity.this,ManThongTinApp.class);
+                    startActivity(intent);
+                }
+                else if(position == 2){
+                    finish();
+                }
             }
         });
 
+
+        //listview Truyen
+        listViewNew.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this,ManNoiDungTruyen.class);
+                String tent =   TruyenArrayList.get(position).getTenTruyen();
+                String noidungt = TruyenArrayList.get(position).getNoiDung();
+                intent.putExtra("tentruyen",tent);
+                intent.putExtra("noidung",noidungt);
+                //Log.e("Tên truyện : ",tent);
+                startActivity(intent);
+            }
+        });
+
+    }
+
+
+    //Tạo thanh action bar với toolbar
+    private void ActionBar() {
+        //Hàm hỗ trợ toolBar
+        setSupportActionBar(toolbar);
+        //set nút của toolbar là true
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //Tạo icon cho toolbar
+        toolbar.setNavigationIcon(android.R.drawable.ic_menu_sort_by_size);
+
+        //Tạo sự kiện click cho toolbar
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Gọi lại drawerlayout, do toolbar được gọi ra nhờ drawerlayout
+                drawerLayout.openDrawer(GravityCompat.START);   //GravityCompat.START làm nó nhảy ra giữa
+            }
+        });
+    }
+
+
+    //Tạo Flipper quảng cáo
+    private void ActionViewFlipper() {
+        //Mảng chứa các tấm hình
+        ArrayList<String> mangquangcao = new ArrayList<>();
+        //Thêm hình
+        mangquangcao.add("https://toplist.vn/images/800px/rua-va-tho-230179.jpg");
+        mangquangcao.add("https://toplist.vn/images/800px/deo-chuong-cho-meo-230180.jpg");
+        mangquangcao.add("https://toplist.vn/images/800px/cu-cai-trang-230181.jpg");
+        mangquangcao.add("https://toplist.vn/images/800px/de-den-va-de-trang-230182.jpg");
+        mangquangcao.add("https://toplist.vn/images/800px/chu-be-chan-cuu-230183.jpg");
+        mangquangcao.add("https://toplist.vn/images/800px/cau-be-chan-cuu-va-cay-da-co-thu-230184.jpg");
+
+        //Gán link ảnh vào imageView, rồi gán gán image ra app
+        for(int i =0; i <mangquangcao.size(); i++){
+            ImageView imageView = new ImageView(getApplicationContext());
+            //Hàm thư viện của picasso. lấy ảnh từ internet về cho vào imageview
+            Picasso.get().load(mangquangcao.get(i)).into(imageView);
+            //phương thức căn chỉnh tấm hình vừa với khung quảng cáo
+            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+            //Thêm ảnh từ imageview vào ViewFlipper
+            viewFlipper.addView(imageView);
+        }
+        //Thiết lập tự chạy cho viewFlipper chạy trong 5 giây
+        viewFlipper.setFlipInterval(5000);
+        //viewFlipper run
+        viewFlipper.setAutoStart(true);
+        //Gọi animation cho in và out . Animation giúp cho nó biến dổi giữa các giao diện hình ảnh
+        Animation animation_slide_in = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.slide_in_right);
+        Animation animation_slide_out = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.slide_out_right);
+        //Gọi animation vào ViewFlippẻ
+        viewFlipper.setInAnimation(animation_slide_in);
+        viewFlipper.setOutAnimation(animation_slide_out);
+    }
+
+    private void AnhXa(){
+        toolbar = findViewById(R.id.toolbarmanhinhchinh);
+        viewFlipper = findViewById(R.id.viewflipper);
+        listViewNew = findViewById(R.id.listviewNew);
+        navigationView = findViewById(R.id.navigationview);
+        listView = findViewById(R.id.listviewmanhinhchinh);
+        drawerLayout = findViewById(R.id.drawerlayout);
+        listviewThongtin = findViewById(R.id.listviewThongTin);
+
+
+
+        //Thong tin
+        taiKhoanArrayList = new ArrayList<>();
+        taiKhoanArrayList.add(new TaiKhoan(tentaikhoan,email));
+        adapterthongtin = new adapterthongtin(this,R.layout.nav_thong_tin,taiKhoanArrayList);
+        listviewThongtin.setAdapter(adapterthongtin);
+
+        //chuyên mục
+        chuyenmucArrayList = new ArrayList<>();
+        chuyenmucArrayList.add(new chuyenmuc("Đăng bài",R.drawable.ic_post));
+        chuyenmucArrayList.add(new chuyenmuc("Thông tin",R.drawable.ic_face));
+        chuyenmucArrayList.add(new chuyenmuc("Đăng xuất",R.drawable.ic_login));
+
+        adapterchuyenmuc = new adapterchuyenmuc(this,R.layout.chuyen_muc,chuyenmucArrayList);
+        listView.setAdapter(adapterchuyenmuc);
+
+
+
+        //New Truyện
+        TruyenArrayList = new ArrayList<>();
+
+        Cursor cursor1 = databaseDocTruyen.getData1();
+        while (cursor1.moveToNext()){
+
+            int id = cursor1.getInt(0);
+            String tentruyen = cursor1.getString(1);
+            String noidung = cursor1.getString(2);
+            String anh = cursor1.getString(3);
+            int id_tk = cursor1.getInt(4);
+            TruyenArrayList.add(new Truyen(id,tentruyen,noidung,anh,id_tk));
+
+            adaptertruyen = new adaptertruyen(getApplicationContext(),TruyenArrayList);
+            listViewNew.setAdapter(adaptertruyen);
+        }
+        cursor1.moveToFirst();
+        cursor1.close();
+
+    }
+
+    //Nạp một menu tìm kiếm vào actionbar
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.mymenu,menu);
+        return true;
+    }
+
+    //Bắt sự kiện khi click vào search
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId())
+        {
+//            case android.R.id.home:
+//                onBackPressed();
+//                return true;
+            case R.id.menu1:
+                Intent intent = new Intent(this,ManTimKiem.class);
+                startActivity(intent);
+                break;
+            default:break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
